@@ -1,14 +1,1 @@
-{
-  "name": "Nawy Calc",
-  "short_name": "Nawy Calc",
-  "description": "حاسبة عربية سريعة وواضحة",
-  "lang": "ar",
-  "dir": "rtl",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#f4f1eb",
-  "theme_color": "#f4f1eb",
-  "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
-  ]
-}
+{"name":"Nawy Calc","short_name":"Nawy Calc","description":"حاسبة عربية سريعة وواضحة","start_url":"/nawy-calc/","display":"standalone","background_color":"#f4f1eb","theme_color":"#f4f1eb","lang":"ar","scope":"/nawy-calc/","dir":"rtl","icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}

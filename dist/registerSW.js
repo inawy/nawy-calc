@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/nawy-calc/sw.js', { scope: '/nawy-calc/' })})}

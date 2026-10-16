@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && test -f dist/manifest.webmanifest && test -f dist/sw.js && test -f dist/icon-192.png && test -f dist/icon-512.png",
     "preview": "vite preview --host 0.0.0.0",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false",
@@ -13,22 +13,23 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "typescript": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest"
   },
   "devDependencies": {
+    "@eslint/js": "latest",
+    "@testing-library/jest-dom": "latest",
+    "@testing-library/react": "latest",
+    "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "@types/node": "latest",
     "eslint": "latest",
-    "@eslint/js": "latest",
-    "typescript-eslint": "latest",
-    "vitest": "latest",
+    "globals": "latest",
     "jsdom": "latest",
-    "@testing-library/react": "latest",
-    "@testing-library/jest-dom": "latest",
-    "globals": "latest"
+    "typescript-eslint": "latest",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "latest"
   }
 }
