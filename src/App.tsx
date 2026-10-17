@@ -6,6 +6,7 @@ import {
 
 type HistoryItem = { expression: string; result: string; time: number }
 type Action = { type: 'digit'; value: string } | { type: 'decimal' } | { type: 'operator'; value: Operator } | { type: 'percent' } | { type: 'sign' } | { type: 'backspace' } | { type: 'clear' } | { type: 'allClear' } | { type: 'equals' }
+const THEME_STORAGE_KEY = 'nawy-calc-theme-v2'
 
 function reducer(state: CalculatorState, action: Action): CalculatorState {
   switch (action.type) {
@@ -26,7 +27,7 @@ const initialHistory = (): HistoryItem[] => {
 }
 
 const buttons: { label: string; action: Action; kind?: string; key?: string; aria: string }[] = [
-  { label: 'AC', action: { type: 'allClear' }, kind: 'utility', key: 'Escape', aria: 'مسح الكل' },
+  { label: 'C', action: { type: 'allClear' }, kind: 'utility clear-key', key: 'Escape', aria: 'مسح الكل' },
   { label: '⌫', action: { type: 'backspace' }, kind: 'utility', key: 'Backspace', aria: 'حذف الرقم الأخير' },
   { label: '%', action: { type: 'percent' }, kind: 'utility', key: '%', aria: 'نسبة مئوية' },
   { label: '÷', action: { type: 'operator', value: '÷' }, kind: 'operator', key: '/', aria: 'قسمة' },
@@ -52,12 +53,12 @@ function App() {
   const [state, dispatch] = useReducer(reducer, undefined, createInitialState)
   const [history, setHistory] = useState<HistoryItem[]>(initialHistory)
   const [showHistory, setShowHistory] = useState(false)
-  const [dark, setDark] = useState(() => localStorage.getItem('nawy-calc-theme') === 'dark')
+  const [dark, setDark] = useState(() => localStorage.getItem(THEME_STORAGE_KEY) !== 'light')
   const [copyFeedback, setCopyFeedback] = useState('')
 
   useEffect(() => {
     document.documentElement.dataset.theme = dark ? 'dark' : 'light'
-    localStorage.setItem('nawy-calc-theme', dark ? 'dark' : 'light')
+    localStorage.setItem(THEME_STORAGE_KEY, dark ? 'dark' : 'light')
   }, [dark])
 
   useEffect(() => {
