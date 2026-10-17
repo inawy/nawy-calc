@@ -75,6 +75,8 @@ function App() {
 
   const expression = state.expression || (state.pendingOperator ? `${state.storedValue} ${state.pendingOperator}` : 'حسابك يبدأ من هنا')
   const formattedDisplay = useMemo(() => state.display.replace('.', '٫'), [state.display])
+  const displayLength = state.display.replace('-', '').replace('.', '').length
+  const displayScale = displayLength > 12 ? 'compact' : displayLength > 9 ? 'medium' : ''
 
   const run = (action: Action) => {
     if (action.type === 'equals' && state.pendingOperator) {
@@ -110,7 +112,7 @@ function App() {
           <div className="display-panel">
             <div className="display-meta"><span className="eyebrow">الحاسبة الأساسية</span><span className="local-badge"><i /> محلي</span></div>
             <span className="expression" dir="ltr">{expression}</span>
-            <output className="display" dir="ltr" aria-live="polite">{formattedDisplay}</output>
+            <output className={`display ${displayScale}`} dir="ltr" aria-live="polite">{formattedDisplay}</output>
           </div>
           <div className="keypad">
             {buttons.map((button) => <button key={button.label} className={`calc-key ${button.kind ?? ''}`} onClick={() => run(button.action)} aria-label={button.aria}>{button.label}</button>)}
