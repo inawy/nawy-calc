@@ -53,6 +53,7 @@ function App() {
   const [history, setHistory] = useState<HistoryItem[]>(initialHistory)
   const [showHistory, setShowHistory] = useState(false)
   const [dark, setDark] = useState(() => localStorage.getItem('nawy-calc-theme') === 'dark')
+  const [copyFeedback, setCopyFeedback] = useState('')
 
   useEffect(() => {
     document.documentElement.dataset.theme = dark ? 'dark' : 'light'
@@ -87,34 +88,41 @@ function App() {
     dispatch(action)
   }
 
+  const copyResult = (result: string) => {
+    navigator.clipboard?.writeText(result)
+    setCopyFeedback('تم النسخ')
+    window.setTimeout(() => setCopyFeedback(''), 1600)
+  }
+
   return (
     <main className="app-shell">
       <header className="topbar">
         <div className="brand-lockup"><span className="brand-mark">ن</span><div><strong>Nawy Calc</strong><span>أدوات حساب بسيطة، بالعربي</span></div></div>
         <div className="top-actions">
-          <button className="icon-button" onClick={() => setShowHistory((value) => !value)} aria-label="عرض سجل العمليات" aria-pressed={showHistory}>⌁</button>
-          <button className="icon-button" onClick={() => setDark((value) => !value)} aria-label={dark ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}>{dark ? '☼' : '◐'}</button>
+          <button className={`action-button ${showHistory ? 'active' : ''}`} onClick={() => setShowHistory((value) => !value)} aria-label="عرض سجل العمليات" aria-pressed={showHistory}><span className="action-icon">⌁</span><span>السجل</span></button>
+          <button className="action-button" onClick={() => setDark((value) => !value)} aria-label={dark ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}><span className="action-icon">{dark ? '☼' : '◐'}</span><span>{dark ? 'فاتح' : 'داكن'}</span></button>
         </div>
       </header>
 
       <section className="workspace">
         <div className="calculator-card" aria-label="حاسبة ناوي">
           <div className="display-panel">
-            <span className="eyebrow">الحاسبة الأساسية</span>
+            <div className="display-meta"><span className="eyebrow">الحاسبة الأساسية</span><span className="local-badge"><i /> محلي</span></div>
             <span className="expression" dir="ltr">{expression}</span>
             <output className="display" dir="ltr" aria-live="polite">{formattedDisplay}</output>
           </div>
           <div className="keypad">
             {buttons.map((button) => <button key={button.label} className={`calc-key ${button.kind ?? ''}`} onClick={() => run(button.action)} aria-label={button.aria}>{button.label}</button>)}
           </div>
-          <p className="keyboard-hint">استخدم لوحة المفاتيح: الأرقام، <kbd>Enter</kbd> للحساب، <kbd>Esc</kbd> للمسح</p>
+          <div className="card-footer"><p className="keyboard-hint">استخدم لوحة المفاتيح: الأرقام، <kbd>Enter</kbd> للحساب، <kbd>Esc</kbd> للمسح</p><span className="privacy-note">لا يوجد حساب مطلوب</span></div>
         </div>
 
         {showHistory && <aside className="history-panel" aria-label="سجل العمليات">
           <div className="history-heading"><div><span className="eyebrow">محلي على جهازك</span><h2>السجل</h2></div><button className="text-button" onClick={() => { setHistory([]); localStorage.removeItem('nawy-calc-history') }}>مسح</button></div>
-          {history.length === 0 ? <div className="empty-history"><span>⌁</span><p>لسه مفيش عمليات محفوظة.</p><small>نتائجك تفضل على جهازك فقط.</small></div> : <div className="history-list">{history.map((item) => <button className="history-item" key={item.time} onClick={() => navigator.clipboard?.writeText(item.result)}><span dir="ltr">{item.expression}</span><strong dir="ltr">= {item.result.replace('.', '٫')}</strong></button>)}</div>}
+          {history.length === 0 ? <div className="empty-history"><span>⌁</span><p>لسه مفيش عمليات محفوظة.</p><small>نتائجك تفضل على جهازك فقط.</small></div> : <div className="history-list">{history.map((item) => <button className="history-item" key={item.time} onClick={() => copyResult(item.result)}><span dir="ltr">{item.expression}</span><strong dir="ltr">= {item.result.replace('.', '٫')}</strong><small>اضغط للنسخ</small></button>)}</div>}
         </aside>}
       </section>
+      <div className={`copy-feedback ${copyFeedback ? 'visible' : ''}`} role="status">✓ {copyFeedback}</div>
       <footer className="footer-note"><span>مصمم للعربي أولًا</span><span className="dot">·</span><span>يعمل بدون حساب</span><span className="dot">·</span><span>بياناتك على جهازك</span></footer>
     </main>
   )
