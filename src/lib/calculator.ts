@@ -1,4 +1,5 @@
 export type Operator = '+' | '−' | '×' | '÷'
+export type ScientificFunction = 'sin' | 'cos' | 'tan' | 'ln' | 'log' | 'sqrt' | 'square' | 'inverse'
 
 export type CalculatorState = {
   display: string
@@ -38,6 +39,23 @@ const calculate = (left: number, operator: Operator, right: number): number => {
   }
 }
 
+const scientificLabel: Record<ScientificFunction, string> = {
+  sin: 'sin°', cos: 'cos°', tan: 'tan°', ln: 'ln', log: 'log', sqrt: '√', square: 'x²', inverse: '1/x',
+}
+
+const scientificValue = (value: number, fn: ScientificFunction): number => {
+  switch (fn) {
+    case 'sin': return Math.sin(value * Math.PI / 180)
+    case 'cos': return Math.cos(value * Math.PI / 180)
+    case 'tan': return Math.abs(Math.cos(value * Math.PI / 180)) < 1e-12 ? Number.NaN : Math.tan(value * Math.PI / 180)
+    case 'ln': return value > 0 ? Math.log(value) : Number.NaN
+    case 'log': return value > 0 ? Math.log10(value) : Number.NaN
+    case 'sqrt': return value >= 0 ? Math.sqrt(value) : Number.NaN
+    case 'square': return value ** 2
+    case 'inverse': return value === 0 ? Number.NaN : 1 / value
+  }
+}
+
 const recover = (): CalculatorState => createInitialState()
 
 export function inputDigit(state: CalculatorState, digit: string): CalculatorState {
@@ -52,6 +70,30 @@ export function inputDecimal(state: CalculatorState): CalculatorState {
   if (state.justEvaluated || state.display === 'خطأ') return { ...createInitialState(), display: '0.' }
   if (state.waitingForOperand) return { ...state, display: '0.', waitingForOperand: false }
   return state.display.includes('.') ? state : { ...state, display: `${state.display}.` }
+}
+
+export function inputConstant(state: CalculatorState, value: number): CalculatorState {
+  if (!Number.isFinite(value)) return recover()
+  return { ...state, display: formatNumber(value), waitingForOperand: false, justEvaluated: false }
+}
+
+export function applyScientific(state: CalculatorState, fn: ScientificFunction): CalculatorState {
+  if (state.display === 'خطأ') return recover()
+  const current = numericDisplay(state.display)
+  const result = scientificValue(current, fn)
+  if (!Number.isFinite(result)) return { ...recover(), display: 'خطأ' }
+  const label = scientificLabel[fn]
+  const hasPendingOperation = state.storedValue !== null && state.pendingOperator !== null
+  const storedValue = state.storedValue ?? 0
+  return {
+    ...state,
+    display: formatNumber(result),
+    waitingForOperand: false,
+    justEvaluated: !hasPendingOperation,
+    expression: hasPendingOperation
+      ? `${formatNumber(storedValue)} ${state.pendingOperator} ${label}(${formatNumber(current)})`
+      : `${label}(${formatNumber(current)})`,
+  }
 }
 
 export function chooseOperator(state: CalculatorState, operator: Operator): CalculatorState {

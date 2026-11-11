@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useReducer, useState } from 'react'
 import {
-  allClear, applyPercent, backspace, chooseOperator, clearEntry, createInitialState,
-  evaluate, inputDecimal, inputDigit, toggleSign, type CalculatorState, type Operator,
+  allClear, applyPercent, applyScientific, backspace, chooseOperator, clearEntry, createInitialState,
+  evaluate, inputConstant, inputDecimal, inputDigit, toggleSign, type CalculatorState, type Operator,
+  type ScientificFunction,
 } from './lib/calculator'
 
 type HistoryItem = { expression: string; result: string; time: number }
-type Action = { type: 'digit'; value: string } | { type: 'decimal' } | { type: 'operator'; value: Operator } | { type: 'percent' } | { type: 'sign' } | { type: 'backspace' } | { type: 'clear' } | { type: 'allClear' } | { type: 'equals' }
+type Action = { type: 'digit'; value: string } | { type: 'decimal' } | { type: 'operator'; value: Operator } | { type: 'percent' } | { type: 'sign' } | { type: 'backspace' } | { type: 'clear' } | { type: 'allClear' } | { type: 'equals' } | { type: 'scientific'; value: ScientificFunction } | { type: 'constant'; value: number }
 const THEME_STORAGE_KEY = 'nawy-calc-theme-v2'
 
 function reducer(state: CalculatorState, action: Action): CalculatorState {
@@ -19,6 +20,8 @@ function reducer(state: CalculatorState, action: Action): CalculatorState {
     case 'clear': return clearEntry(state)
     case 'allClear': return allClear()
     case 'equals': return evaluate(state)
+    case 'scientific': return applyScientific(state, action.value)
+    case 'constant': return inputConstant(state, action.value)
   }
 }
 
@@ -49,10 +52,24 @@ const buttons: { label: string; action: Action; kind?: string; key?: string; ari
   { label: '=', action: { type: 'equals' }, kind: 'equals', key: 'Enter', aria: 'يساوي' },
 ]
 
+const scientificButtons: { label: string; action: Action; aria: string; kind?: string }[] = [
+  { label: 'sin°', action: { type: 'scientific', value: 'sin' }, aria: 'جيب بالدرجات' },
+  { label: 'cos°', action: { type: 'scientific', value: 'cos' }, aria: 'جيب تمام بالدرجات' },
+  { label: 'tan°', action: { type: 'scientific', value: 'tan' }, aria: 'ظل بالدرجات' },
+  { label: '√', action: { type: 'scientific', value: 'sqrt' }, aria: 'الجذر التربيعي' },
+  { label: 'ln', action: { type: 'scientific', value: 'ln' }, aria: 'اللوغاريتم الطبيعي' },
+  { label: 'log', action: { type: 'scientific', value: 'log' }, aria: 'اللوغاريتم العشري' },
+  { label: 'x²', action: { type: 'scientific', value: 'square' }, aria: 'التربيع' },
+  { label: '1/x', action: { type: 'scientific', value: 'inverse' }, aria: 'المقلوب' },
+  { label: 'π', action: { type: 'constant', value: Math.PI }, kind: 'constant', aria: 'باي' },
+  { label: 'e', action: { type: 'constant', value: Math.E }, kind: 'constant', aria: 'ثابت أويلر' },
+]
+
 function App() {
   const [state, dispatch] = useReducer(reducer, undefined, createInitialState)
   const [history, setHistory] = useState<HistoryItem[]>(initialHistory)
   const [showHistory, setShowHistory] = useState(false)
+  const [scientificOpen, setScientificOpen] = useState(false)
   const [dark, setDark] = useState(() => localStorage.getItem(THEME_STORAGE_KEY) !== 'light')
   const [copyFeedback, setCopyFeedback] = useState('')
 
@@ -102,6 +119,7 @@ function App() {
       <header className="topbar">
         <div className="brand-lockup"><span className="brand-mark">ن</span><div><strong>Nawy Calc</strong><span>أدوات حساب بسيطة، بالعربي</span></div></div>
         <div className="top-actions">
+          <button className={`action-button ${scientificOpen ? 'active' : ''}`} onClick={() => setScientificOpen((value) => !value)} aria-label={scientificOpen ? 'العودة إلى الحاسبة الأساسية' : 'فتح الآلة الحاسبة العلمية'} aria-pressed={scientificOpen}><span className="action-icon">ƒx</span><span>{scientificOpen ? 'أساسي' : 'علمي'}</span></button>
           <button className={`action-button ${showHistory ? 'active' : ''}`} onClick={() => setShowHistory((value) => !value)} aria-label="عرض سجل العمليات" aria-pressed={showHistory}><span className="action-icon">⌁</span><span>السجل</span></button>
           <button className="action-button" onClick={() => setDark((value) => !value)} aria-label={dark ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}><span className="action-icon">{dark ? '☼' : '◐'}</span><span>{dark ? 'فاتح' : 'داكن'}</span></button>
         </div>
@@ -114,6 +132,9 @@ function App() {
             <span className="expression" dir="ltr">{expression}</span>
             <output className={`display ${displayScale}`} dir="ltr" aria-live="polite">{formattedDisplay}</output>
           </div>
+          {scientificOpen && <div className="scientific-panel" aria-label="الدوال العلمية">
+            {scientificButtons.map((button) => <button key={button.label} className={`scientific-key ${button.kind ?? ''}`} onClick={() => run(button.action)} aria-label={button.aria}>{button.label}</button>)}
+          </div>}
           <div className="keypad">
             {buttons.map((button) => <button key={button.label} className={`calc-key ${button.kind ?? ''}`} onClick={() => run(button.action)} aria-label={button.aria}>{button.label}</button>)}
           </div>

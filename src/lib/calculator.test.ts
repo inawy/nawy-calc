@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
-  allClear, applyPercent, chooseOperator, createInitialState, evaluate,
-  inputDecimal, inputDigit, toggleSign,
+  allClear, applyPercent, applyScientific, chooseOperator, createInitialState, evaluate,
+  inputConstant, inputDecimal, inputDigit, toggleSign,
 } from './calculator'
 
 describe('calculator engine', () => {
@@ -46,5 +46,25 @@ describe('calculator engine', () => {
 
   it('resets with all clear', () => {
     expect(allClear()).toEqual(createInitialState())
+  })
+
+  it('applies degree trigonometry and square root', () => {
+    expect(applyScientific(number('30'), 'sin').display).toBe('0.5')
+    expect(applyScientific(number('81'), 'sqrt').display).toBe('9')
+  })
+
+  it('supports scientific functions inside a basic operation', () => {
+    let state = chooseOperator(number('2'), '+')
+    state = applyScientific(inputDigit(state, '9'), 'sqrt')
+    expect(evaluate(state).display).toBe('5')
+  })
+
+  it('returns an error for invalid scientific domains', () => {
+    expect(applyScientific(toggleSign(number('1')), 'ln').display).toBe('خطأ')
+    expect(applyScientific(number('90'), 'tan').display).toBe('خطأ')
+  })
+
+  it('inserts mathematical constants', () => {
+    expect(inputConstant(createInitialState(), Math.PI).display).toBe('3.14159265359')
   })
 })
