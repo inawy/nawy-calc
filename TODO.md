@@ -24,4 +24,4 @@
 - [ ] إضافة اختبارات تشغيل آلية للحالات التفاعلية على 320px و375px و768px ووضع landscape.
 - [ ] إضافة fallback للنسخ عندما لا تتوفر `navigator.clipboard`، مع خيار مشاركة اختياري.
 - [ ] إضافة وضع Scientific تدريجيًا دون ازدحام واجهة الهاتف.
-- [x] تشغيل lint وtypecheck وtest وbuild بعد آخر تعديل، مع بقاء دفع commit الجديد إلى `main` كخطوة التسليم.
+- [x] تشغيل lint وtypecheck وtest وbuild بعد آخر تعديل ودفع commit موثق إلى `main`.
